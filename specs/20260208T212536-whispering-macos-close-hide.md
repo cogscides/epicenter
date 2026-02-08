@@ -43,10 +43,10 @@ Current code location:
 - Kept Aptabase event tracking logic (`Ready` / `Exit`) intact.
 - Updated analytics matching to `match &event` so the same event can be used by both macOS and analytics handlers without changing behavior.
 - Fixed local dev dependency resolution for Tauri JS API:
-  - Pinned `@tauri-apps/api` to `2.9.0` in:
+  - Pinned `@tauri-apps/api` to `2.10.1` in:
     - `apps/whispering/package.json`
     - `apps/epicenter/package.json`
-  - Added root override in `package.json` to keep transitive plugin dependencies on `@tauri-apps/api@2.9.0`.
+  - Added root override in `package.json` to keep transitive plugin dependencies on `@tauri-apps/api@2.10.1`.
   - Rebuilt dependencies via `bun clean` / `bun install` to clear broken nested installs.
 
 ### Validation run
