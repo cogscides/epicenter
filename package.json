@@ -85,5 +85,8 @@
 	},
 	"dependencies": {
 		"arktype": "^2.1.29"
+	},
+	"overrides": {
+		"@tauri-apps/api": "2.10.1"
 	}
 }

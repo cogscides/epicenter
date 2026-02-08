@@ -178,9 +178,44 @@ pub async fn run() {
         .expect("error while building tauri application");
 
     app.run(|handler, event| {
+        #[cfg(target_os = "macos")]
+        match &event {
+            // On macOS, close should hide the main window so shortcuts/transcription can keep running.
+            tauri::RunEvent::WindowEvent {
+                label,
+                event: tauri::WindowEvent::CloseRequested { api, .. },
+                ..
+            } if label == "main" => {
+                api.prevent_close();
+                if let Some(window) = handler.get_webview_window("main") {
+                    if let Err(error) = window.hide() {
+                        warn!("failed to hide main window on close request: {error}");
+                    }
+                }
+            }
+            // Restore main window when the app is reopened from Dock with no visible windows.
+            tauri::RunEvent::Reopen {
+                has_visible_windows,
+                ..
+            } if !has_visible_windows => {
+                if let Some(window) = handler.get_webview_window("main") {
+                    if let Err(error) = window.show() {
+                        warn!("failed to show main window on reopen: {error}");
+                    }
+                    if let Err(error) = window.unminimize() {
+                        warn!("failed to unminimize main window on reopen: {error}");
+                    }
+                    if let Err(error) = window.set_focus() {
+                        warn!("failed to focus main window on reopen: {error}");
+                    }
+                }
+            }
+            _ => {}
+        }
+
         // Only track events if Aptabase is enabled (key is not empty)
         if !aptabase_key.is_empty() {
-            match event {
+            match &event {
                 tauri::RunEvent::Exit { .. } => {
                     let _ = handler.track_event("app_exited", None);
                     handler.flush_events_blocking();
